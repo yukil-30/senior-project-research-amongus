@@ -21,6 +21,13 @@ def llama3_format(system, user, assistant):
     assistant_part = f"<|start_header_id|>assistant<|end_header_id|>{assistant}" if assistant else "<|start_header_id|>assistant<|end_header_id|>"
     return f"{system_part}{user_part}{assistant_part}"
 
+def qwen_2_5_1_5b_format(system, user, assistant):
+    system_part = f"<|im_start|>system{system}<|im_end|>" if system else ""
+    user_part = f"<|im_start|>user{user}<|im_end|>" if user else ""
+    # For Qwen, we usually end with a newline after the assistant tag to let it start generating
+    assistant_part = f"<|im_start|>assistant{assistant}" if assistant else "<|im_start|>assistant\n"
+    return f"{system_part}{user_part}{assistant_part}"
+
 class ActivationCache:
     def __init__(self, model, tokenizer, device):
         self.model = model

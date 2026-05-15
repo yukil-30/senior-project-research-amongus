@@ -55,7 +55,7 @@ class LLMAgent(Agent):
         self.model = model
         self.temperature = 0.7
         self.api_key = os.getenv("OPENROUTER_API_KEY")
-        self.api_url = "https://openrouter.ai/api/v1/chat/completions"
+        self.api_url = "http://localhost:11434/v1/chat/completions"
         self.summarization = "No thought process has been made."
         self.processed_memory = "No memory has been processed."
         self.chat_history = []
@@ -172,8 +172,10 @@ class LLMAgent(Agent):
             "repetition_penalty": 1,
             "top_k": 0,
         }
-        
-        async with aiohttp.ClientSession() as session:
+
+        timeout = aiohttp.ClientTimeout(total=30)  # 30 second timeout
+
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             for attempt in range(10):
                 try:
                     async with session.post(self.api_url, headers=headers, data=json.dumps(payload)) as response:

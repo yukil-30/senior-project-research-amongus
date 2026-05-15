@@ -12,16 +12,16 @@ for module in [datasets, plots, configs, evaluate_utils]:
     importlib.reload(module)
 
 from probe_datasets import AmongUsDataset, TruthfulQADataset, DishonestQADataset, RepEngDataset, RolePlayingDataset, ApolloProbeDataset
-from configs import config_phi4, config_gpt2, config_llama3
+from configs import config_phi4, config_gpt2, config_llama3, config_qwen25_15b
 
 def main(dataset_name: str):
-    config = config_llama3
+    config = config_qwen25_15b
     model_name = config["model_name"]
     load_models = True
 
     if load_models:
-        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, device_map="auto", torch_dtype=t.bfloat16)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=False)
+        model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=False, device_map="auto", torch_dtype=t.bfloat16)
         device = model.device
     else:
         model, tokenizer, device = None, None, 'cpu'
@@ -40,7 +40,7 @@ def main(dataset_name: str):
 
 if __name__ == "__main__":
     # datasets_to_cache = ["AmongUsDataset", "TruthfulQADataset", "DishonestQADataset", "RepEngDataset", "RolePlayingDataset"]
-    datasets_to_cache = ["RolePlayingDataset"]
+    datasets_to_cache = ["AmongUsDataset"]
     for dataset_name in datasets_to_cache:
         print(f"Caching activations for {dataset_name}...")
         main(dataset_name)

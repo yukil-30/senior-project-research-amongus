@@ -48,7 +48,7 @@ async def send_request(messages, model):
         try:
             async with aiohttp.ClientSession() as client:
                 async with client.post(
-                    url="https://openrouter.ai/api/v1/chat/completions",
+                    url="http://localhost:11434/v1/chat/completions",
                     headers = {"Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}"},
                     data=json.dumps({
                         "model": model,
@@ -59,6 +59,8 @@ async def send_request(messages, model):
                     data = await response.json()
                     return data['choices'][0]['message']['content']
         except Exception as e:
+            if 'data' in locals():
+                print(f"\nAPI Error Response: {data}")
             print(f"Error: {e}")
             print(f"Attempt {attempt + 1} failed. Retrying...")
             # exponential backoff
@@ -108,7 +110,7 @@ async def process_row(row, results_file, model):
             print(f"JSON ERROR: {e}")
         print(f"." , end="", flush=True)
 
-async def main(agent_df, results_file, model, run_async=True, rate_limit=50):
+async def main(agent_df, results_file, model, run_async=True, rate_limit=1):
     if run_async:
         # create semaphore to limit concurrent tasks
         semaphore = asyncio.Semaphore(rate_limit)
@@ -124,8 +126,8 @@ async def main(agent_df, results_file, model, run_async=True, rate_limit=50):
             await process_row(row, results_file, model)
 
 parser = argparse.ArgumentParser(description="Run an AmongUs evaluation.")
-parser.add_argument("--expt_name", type=str, default="2025-01-30_prompting_v2", help="Experiment name.")
-parser.add_argument("--evaluator", type=str, default="meta-llama/llama-3.3-70b-instruct", help="Evaluator LLM to use.")
+parser.add_argument("--expt_name", type=str, default="qwen_baseline", help="Experiment name.")
+parser.add_argument("--evaluator", type=str, default="llama3.1:8b", help="Evaluator LLM to use.")
 args = parser.parse_args()
 expt_name = args.expt_name
 model = args.evaluator

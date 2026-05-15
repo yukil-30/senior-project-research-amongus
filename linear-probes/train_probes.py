@@ -7,7 +7,7 @@ import os
 import sys
 import pickle
 from typing import Dict, Any, List
-from configs import config_phi4, config_gpt2, config_llama3
+from configs import config_phi4, config_gpt2, config_llama3, config_qwen25_15b
 
 sys.path.append(os.path.dirname(os.path.abspath('.')))
 sys.path.append('.')
@@ -21,15 +21,15 @@ from probe_datasets import (
 from probes import LinearProbe
 
 datasets: List[str] = [
-    "TruthfulQADataset",
-    "DishonestQADataset",
+    # "TruthfulQADataset",
+    # "DishonestQADataset",
     "AmongUsDataset",
-    "RepEngDataset",
+    # "RepEngDataset",
 ]
 
-config = config_phi4
+config = config_qwen25_15b
 model, tokenizer, device = None, None, 'cpu'
-amongus_expt_name: str = "2025-02-01_phi_phi_100_games_v3"
+amongus_expt_name: str = "qwen_baseline"
 
 ################### TRAINING PROBES
 

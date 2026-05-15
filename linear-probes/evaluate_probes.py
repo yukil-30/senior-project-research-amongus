@@ -1,5 +1,6 @@
 # EVALUATE ALL LINEAR PROBES (AND GET PLOTS FOR PAPER)
 
+import jsonlines
 import sys
 import pickle
 sys.path.append('.')
@@ -17,27 +18,27 @@ from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_prec
 
 from probe_datasets import TruthfulQADataset, DishonestQADataset, AmongUsDataset, RolePlayingDataset, RepEngDataset
 from evaluate_utils import evaluate_probe_on_activation_dataset
-from configs import config_phi4, config_gpt2, config_llama3
+from configs import config_phi4, config_gpt2, config_llama3, config_qwen25_15b
 from plots import plot_behavior_distribution, plot_roc_curves, add_roc_curves, print_metrics, plot_roc_curve_eval
 import probes
 from pprint import pprint as pp
 
-config = config_llama3
+config = config_qwen25_15b
 model, tokenizer, device = None, None, 'cpu'
 
-from datasets import (
-    TruthfulQADataset,
-    DishonestQADataset, 
+from probe_datasets import (
+    # TruthfulQADataset,
+    # DishonestQADataset, 
     AmongUsDataset,
-    RepEngDataset,
+    # RepEngDataset,
 )
 from probes import LinearProbe
 
 datasets: List[str] = [
-    "TruthfulQADataset",
-    "DishonestQADataset",
+    # "TruthfulQADataset",
+    # "DishonestQADataset",
     "AmongUsDataset",
-    "RepEngDataset",
+    # "RepEngDataset",
     # "RolePlayingDataset",
 ]
 
@@ -58,64 +59,64 @@ def evaluate_probe(
             os.remove(os.path.join(f"results/{dataset_name}_{config['short_name']}", file))
     
     # evaluate on TQA
-    dataset = TruthfulQADataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
-    test_acts_chunk = dataset.get_test_acts()
-    av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
-        chunk_data=test_acts_chunk,
-        probe=probe,
-        device=device,
-        num_tokens=None,
-    )
-    labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
-    fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
-    rocs["TQA"] = roc
-    # save the figure in high-res PDF using plotly
-    fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_TQA.pdf", scale=1)
+    # dataset = TruthfulQADataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
+    # test_acts_chunk = dataset.get_test_acts()
+    # av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
+    #     chunk_data=test_acts_chunk,
+    #     probe=probe,
+    #     device=device,
+    #     num_tokens=None,
+    # )
+    # labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
+    # fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
+    # rocs["TQA"] = roc
+    # # save the figure in high-res PDF using plotly
+    # fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_TQA.pdf", scale=1)
 
     # evaluate on DQA
-    dataset = DishonestQADataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
-    test_acts_chunk = dataset.get_test_acts()
-    av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
-        chunk_data=test_acts_chunk,
-        probe=probe,
-        device=device,
-        num_tokens=None,
-    )
-    labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
-    fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
-    rocs["DQA"] = roc
-    # save the figure in high-res PDF
-    fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_DQA.pdf", scale=1)
+    # dataset = DishonestQADataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
+    # test_acts_chunk = dataset.get_test_acts()
+    # av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
+    #     chunk_data=test_acts_chunk,
+    #     probe=probe,
+    #     device=device,
+    #     num_tokens=None,
+    # )
+    # labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
+    # fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
+    # rocs["DQA"] = roc
+    # # save the figure in high-res PDF
+    # fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_DQA.pdf", scale=1)
 
     # evaluate on RepEng
-    dataset = RepEngDataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
-    test_acts_chunk = dataset.get_test_acts()
-    av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
-        chunk_data=test_acts_chunk,
-        probe=probe,
-        device=device,
-        num_tokens=None,
-    )
-    labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
-    fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
-    rocs["RepEng"] = roc
-    # save the figure in high-res PDF
-    fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_RepEng.pdf", scale=1)
+    # dataset = RepEngDataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
+    # test_acts_chunk = dataset.get_test_acts()
+    # av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
+    #     chunk_data=test_acts_chunk,
+    #     probe=probe,
+    #     device=device,
+    #     num_tokens=None,
+    # )
+    # labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
+    # fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
+    # rocs["RepEng"] = roc
+    # # save the figure in high-res PDF
+    # fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_RepEng.pdf", scale=1)
 
     # evaluate on RolePlaying
-    dataset = RolePlayingDataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
-    test_acts_chunk = dataset.get_test_acts()
-    av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
-        chunk_data=test_acts_chunk,
-        probe=probe,
-        device=device,
-        num_tokens=30,
-    )
-    labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
-    fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
-    rocs["RolePlaying"] = roc
-    # save the figure in high-res PDF
-    fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_RolePlaying.pdf", scale=1)
+    # dataset = RolePlayingDataset(config, model=model, tokenizer=tokenizer, device=device, test_split=0.2)
+    # test_acts_chunk = dataset.get_test_acts()
+    # av_probe_outputs, accuracy = evaluate_probe_on_activation_dataset(
+    #     chunk_data=test_acts_chunk,
+    #     probe=probe,
+    #     device=device,
+    #     num_tokens=30,
+    # )
+    # labels = t.tensor([batch[1] for batch in test_acts_chunk]).numpy()
+    # fig, roc = plot_roc_curve_eval(labels, av_probe_outputs)
+    # rocs["RolePlaying"] = roc
+    # # save the figure in high-res PDF
+    # fig.write_image(f"results/{dataset_name}_{config['short_name']}/roc_RolePlaying.pdf", scale=1)
 
     # evaluate on AmongUs
 
@@ -205,6 +206,48 @@ def evaluate_probe(
     for col in behaviors:
         probe_eval[col] = probe_eval[col].astype(int)
         probe_eval[f'{col}_truth'] = (probe_eval[col] > 5).astype(int)
+
+    # =====================================================================
+    # 🌟 NEW CODE: EXPORT BOTH TO PY-IRT (ADAPTED FOR SUFFIXES) 🌟
+    # =====================================================================
+    
+    def export_irt(target_behavior, output_filename):
+        irt_data = []
+        # Filter for actual instances of the specific behavior
+        target_df = probe_eval[probe_eval[f'{target_behavior}_truth'] == 1]
+
+        responses_dict = {}
+        
+        for _, row in target_df.iterrows():
+            probe_guessed_positive = 1 if row['probe_output'] > 0 else 0
+            # If the probe guessed 1, it's correct (because we filtered for truth == 1)
+            is_correct = 1 if probe_guessed_positive == 1 else 0
+            
+            # --- ADAPTATION: Handle Pandas _x/_y suffixing gracefully ---
+            game_val = row['game_index_x'] if 'game_index_x' in row else row['game_index']
+            step_val = row['step_x'] if 'step_x' in row else row['step']
+            
+            item_id = f"game_{int(game_val)}_step_{int(step_val)}"
+            # ------------------------------------------------------------
+
+            responses_dict[item_id] = is_correct
+            
+            irt_data = [{
+                "subject_id": "baseline_probe",
+                "responses": responses_dict
+            }]
+
+        # Save to file
+        irt_out_path = f"results/{dataset_name}_{config['short_name']}/{output_filename}"
+        with jsonlines.open(irt_out_path, mode='w') as writer:
+            writer.write_all(irt_data)
+        print(f"Exported {len(irt_data)} {target_behavior} items for IRT analysis to {irt_out_path}")
+
+    # Run the export for both!
+    export_irt('lying', 'baseline_irt_lying.jsonlines')
+    export_irt('deception', 'baseline_irt_deception.jsonlines')
+    
+    # =====================================================================
     
     fig, roc_list = plot_roc_curve_eval(
         labels=probe_eval['lying_truth'], 

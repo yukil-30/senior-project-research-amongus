@@ -18,7 +18,7 @@ from amongagents.envs.configs.agent_config import ALL_LLM
 from amongagents.envs.configs.game_config import FIVE_MEMBER_GAME, SEVEN_MEMBER_GAME, FIVE_MEMBER_GAME
 from amongagents.envs.configs.map_config import map_coords
 from amongagents.envs.game import AmongUs
-from amongagents.UI.MapUI import MapUI
+# from amongagents.UI.MapUI import MapUI
 from dotenv import load_dotenv
 
 from utils import setup_experiment
@@ -35,27 +35,31 @@ COMMIT_HASH = (
     subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("utf-8")
 )
 
+# BIG_LIST_OF_MODELS: List[str] = [
+#     "anthropic/claude-3.5-sonnet",
+#     "anthropic/claude-3-opus",
+#     "anthropic/claude-3.7-sonnet:thinking",
+#     "anthropic/claude-3.7-sonnet",
+#     "openai/o3",
+#     "openai/o4-mini-high",
+#     "openai/gpt-4o",
+#     "deepseek/deepseek-r1",
+#     "deepseek/deepseek-chat-v3-0324",
+#     "deepseek/deepseek-r1-distill-llama-70b",
+#     "google/gemini-2.5-pro-preview-03-25",
+#     "google/gemini-2.0-flash-001",
+#     "google/gemma-3-4b-it",
+#     "qwen/qwen3-235b-a22b",
+#     "qwen/qwen-2.5-7b-instruct",
+#     "meta-llama/llama-4-maverick",
+#     "meta-llama/llama-3.3-70b-instruct",
+#     "mistralai/mistral-small-3.1-24b-instruct",
+#     "x-ai/grok-3-beta",
+#     "microsoft/phi-4",
+# ]
+
 BIG_LIST_OF_MODELS: List[str] = [
-    "anthropic/claude-3.5-sonnet",
-    "anthropic/claude-3-opus",
-    "anthropic/claude-3.7-sonnet:thinking",
-    "anthropic/claude-3.7-sonnet",
-    "openai/o3",
-    "openai/o4-mini-high",
-    "openai/gpt-4o",
-    "deepseek/deepseek-r1",
-    "deepseek/deepseek-chat-v3-0324",
-    "deepseek/deepseek-r1-distill-llama-70b",
-    "google/gemini-2.5-pro-preview-03-25",
-    "google/gemini-2.0-flash-001",
-    "google/gemma-3-4b-it",
-    "qwen/qwen3-235b-a22b",
-    "qwen/qwen-2.5-7b-instruct",
-    "meta-llama/llama-4-maverick",
-    "meta-llama/llama-3.3-70b-instruct",
-    "mistralai/mistral-small-3.1-24b-instruct",
-    "x-ai/grok-3-beta",
-    "microsoft/phi-4",
+    "qwen2.5:1.5b-instruct",
 ]
 
 ARGS = {
@@ -72,7 +76,7 @@ ARGS = {
     "UI": False,
 }
 
-async def multiple_games(experiment_name=None, num_games=1, rate_limit=50):
+async def multiple_games(experiment_name=None, num_games=1, rate_limit=1):
     experiment_name = setup_experiment(experiment_name, LOGS_PATH, DATE, COMMIT_HASH, ARGS)
     ui = MapUI(BLANK_MAP_IMAGE, map_coords, debug=False) if ARGS["UI"] else None
     with open(os.path.join(os.environ["EXPERIMENT_PATH"], "experiment-details.txt"), "a") as experiment_file:
@@ -107,7 +111,7 @@ async def multiple_games(experiment_name=None, num_games=1, rate_limit=50):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run an AmongUs experiment.")
     parser.add_argument("--name", type=str, default=None, help="Optional name for the experiment.")
-    parser.add_argument("--num_games", type=int, default=2, help="Number of games to run.")
+    parser.add_argument("--num_games", type=int, default=50, help="Number of games to run.")
     parser.add_argument("--display_ui", type=bool, default=False, help="Display UI.")
     parser.add_argument("--crewmate_llm", type=str, default=None, help="Crewmate LLM model.")
     parser.add_argument("--impostor_llm", type=str, default=None, help="Impostor LLM model.")
