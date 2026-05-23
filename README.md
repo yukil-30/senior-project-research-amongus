@@ -1,20 +1,34 @@
-# *AmongUs*: A Sandbox for Measuring and Detecting Agentic Deception
+# Deception in LLM Agents: Effects of Text Decomposition in Social Deduction Games
 
-[Paper link.](https://arxiv.org/abs/2504.04072)
-
-This project introduces the game "Among Us" as a model organism for lying and deception and studies how AI agents learn to express lying and deception, while evaluating the effectiveness of AI safety techniques to detect and control out-of-distribution deception.
+This repository contains the code and simulation environment for our senior research project on detecting deception in LLM agents. We use a text-based simulation of the game *Among Us* to study how AI agents learn to express lying and deception, and specifically investigate whether **text decomposition** improves the detectability of these signals within a model's internal activations.
 
 ## Overview
 
-The aim is to simulate the popular multiplayer game "Among Us" using AI agents and analyze their behavior, particularly their ability to deceive and lie, which is central to the game's mechanics.
+> **Attribution Notice:** This repository is a cloned and modified version of the original [*AmongUs* sandbox by 7vik](https://github.com/7vik/AmongUs). We have adapted their foundational simulation and probing architecture to run locally via Ollama and specifically tailored it to test our text decomposition hypotheses.
+
+Large language model (LLM) agents are increasingly deployed in real-world environments that require reasoning and decision-making under incomplete or misleading information. This project simulates an *Among Us* environment—featuring hidden roles, cooperation, and strategic communication—to compare how well linear probes can detect factual lying versus general deception from an LLM's hidden states.
 
 <img src="https://static.wikia.nocookie.net/among-us-wiki/images/f/f5/Among_Us_space_key_art_redesign.png" alt="Among Us" width="400"/>
+
+## Prerequisites: Ollama
+
+Unlike other implementations that rely on paid APIs (like OpenRouter or OpenAI), this project is designed to run entirely locally using [Ollama](https://ollama.com/). 
+
+Before running the simulation or evaluations, ensure Ollama is installed and the required models are pulled to your machine:
+
+```bash
+# Pull the agent model used for gameplay
+ollama pull qwen2.5:1.5b-instruct
+
+# Pull the evaluator model used for labeling deception
+ollama pull llama3.1:8b
+```
 
 ## Setup
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/7vik/AmongUs.git
+   git clone XXXX
    cd AmongUs
    ```
 
@@ -30,26 +44,19 @@ The aim is to simulate the popular multiplayer game "Among Us" using AI agents a
    pip install numpy pandas networkx streamlit dotenv requests aiohttp
    ```
 
+4. Configure your environment file:
+Create a .env file in the root directory of the project to redirect the code's API calls to your local Ollama instance:
+   ```bash
+   OPENROUTER_API_BASE="http://localhost:11434/v1"
+   ```
+
 ## Run Games
 
-To run the sandbox and log games of various LLMs playing against each other, run:
+To run the sandbox and simulate games using Qwen-2.5-1.5B-Instruct locally via Ollama, run:
 
 ```
 main.py
 ```
-You will need to add a `.env` file with an [OpenRouter](https://openrouter.ai/) API key.
-
-Alternatively, you can download 400 full-game logs (for `Phi-4-15b` and `Llama-3.3-70b-instruct`) and 810 game summaries from the [HuggingFace](https://huggingface.co/datasets/7vik/AmongUs) dataset to reproduce the results in the paper (and evaluate your own techniques!).
-
-## Deception ELO
-
-After running (or downloading) the games, to reproduce our Deception ELO results, run the following notebook:
-
-```
-reports/2025_02_26_deception_ELO_v3_ci.ipynb
-```
-
-The other report files can be used to reproduce the respective results.
 
 ## Caching Activations
 
