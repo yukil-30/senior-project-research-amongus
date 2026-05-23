@@ -207,49 +207,43 @@ def evaluate_probe(
         probe_eval[col] = probe_eval[col].astype(int)
         probe_eval[f'{col}_truth'] = (probe_eval[col] > 5).astype(int)
 
-    # =====================================================================
-    # 🌟 NEW CODE: EXPORT BOTH TO PY-IRT (ADAPTED FOR SUFFIXES) 🌟
-    # =====================================================================
+
     
-    def export_irt(target_behavior, output_filename):
-        irt_data = []
-        # Filter for actual instances of the specific behavior
-        target_df = probe_eval[probe_eval[f'{target_behavior}_truth'] == 1]
+    # def export_irt(target_behavior, output_filename):
+    #     irt_data = []
+    #     # Filter for actual instances of the specific behavior
+    #     target_df = probe_eval[probe_eval[f'{target_behavior}_truth'] == 1]
 
-        responses_dict = {}
+    #     responses_dict = {}
         
-        for _, row in target_df.iterrows():
-            probe_guessed_positive = 1 if row['probe_output'] > 0 else 0
-            # If the probe guessed 1, it's correct (because we filtered for truth == 1)
-            is_correct = 1 if probe_guessed_positive == 1 else 0
+    #     for _, row in target_df.iterrows():
+    #         probe_guessed_positive = 1 if row['probe_output'] > 0 else 0
+    #         # If the probe guessed 1, it's correct (because we filtered for truth == 1)
+    #         is_correct = 1 if probe_guessed_positive == 1 else 0
             
-            # --- ADAPTATION: Handle Pandas _x/_y suffixing gracefully ---
-            game_val = row['game_index_x'] if 'game_index_x' in row else row['game_index']
-            step_val = row['step_x'] if 'step_x' in row else row['step']
+    #         # --- ADAPTATION: Handle Pandas _x/_y suffixing gracefully ---
+    #         game_val = row['game_index_x'] if 'game_index_x' in row else row['game_index']
+    #         step_val = row['step_x'] if 'step_x' in row else row['step']
             
-            item_id = f"game_{int(game_val)}_step_{int(step_val)}"
-            # ------------------------------------------------------------
+    #         item_id = f"game_{int(game_val)}_step_{int(step_val)}"
+    #         # ------------------------------------------------------------
 
-            responses_dict[item_id] = is_correct
+    #         responses_dict[item_id] = is_correct
             
-        irt_data = [{
-            "subject_id": "decomposed_probe",
-            "responses": responses_dict
-        }]
+    #     irt_data = [{
+    #         "subject_id": "decomposed_probe",
+    #         "responses": responses_dict
+    #     }]
 
-        # Save to file
-        irt_out_path = f"results/{dataset_name}_{config['short_name']}/{output_filename}"
-        with jsonlines.open(irt_out_path, mode='w') as writer:
-            writer.write_all(irt_data)
-        print(f"Exported {len(irt_data)} {target_behavior} items for IRT analysis to {irt_out_path}")
-
-    # # Run the export for both!
-    # export_irt('lying', 'baseline_irt_lying.jsonlines')
-    # export_irt('deception', 'baseline_irt_deception.jsonlines')
+    #     # Save to file
+    #     irt_out_path = f"results/{dataset_name}_{config['short_name']}/{output_filename}"
+    #     with jsonlines.open(irt_out_path, mode='w') as writer:
+    #         writer.write_all(irt_data)
+    #     print(f"Exported {len(irt_data)} {target_behavior} items for IRT analysis to {irt_out_path}")
 
     # Run the export for both!
-    export_irt('lying', 'decomposed_irt_lying.jsonlines')
-    export_irt('deception', 'decomposed_irt_deception.jsonlines')
+    # export_irt('lying', 'decomposed_irt_lying.jsonlines')
+    # export_irt('deception', 'decomposed_irt_deception.jsonlines')
     
     # =====================================================================
     

@@ -21,7 +21,10 @@ from probe_datasets import (
 from probes import LinearProbe
 
 datasets: List[str] = [
-    "AmongUsDataset",=
+    # "TruthfulQADataset",
+    # "DishonestQADataset",
+    "AmongUsDataset",
+    # "RepEngDataset",
 ]
 
 config = config_qwen25_15b
