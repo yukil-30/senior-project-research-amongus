@@ -163,7 +163,7 @@ class AmongUs:
             tools = [GetBestPath(network=self.map.ship_map)]
 
             agent_dict = {
-                "LLM": lambda player: LLMAgent(player, tools, self.game_index, self.agent_config, self.list_of_impostors),
+                "LLM": lambda player: LLMAgent(player, tools, self.game_index, self.agent_config, self.list_of_impostors, enable_decomposition=True),
                 "Random": RandomAgent,
             }
             self.agents = []

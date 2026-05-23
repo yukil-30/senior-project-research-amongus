@@ -31,14 +31,19 @@ class Agent:
 
 
 class LLMAgent(Agent):
-    def __init__(self, player, tools, game_index, agent_config, list_of_impostors):
+    def __init__(self, player, tools, game_index, agent_config, list_of_impostors, enable_decomposition):
         super().__init__(player)
+
         if player.identity == "Crewmate":
+            player.enable_decomposition = enable_decomposition
+
             system_prompt = CREWMATE_PROMPT.format(name=player.name)
             if player.personality is not None:
                 system_prompt += PERSONALITY_PROMPT.format(
                     personality=CrewmatePersonalities[player.personality]
                 )
+            # if enable_decomposition:
+            #     system_prompt += CREWMATE_DECOMPOSITION_ANALYSIS
             system_prompt += CREWMATE_EXAMPLE
             model = random.choice(agent_config["CREWMATE_LLM_CHOICES"])
         elif player.identity == "Impostor":
@@ -64,6 +69,8 @@ class LLMAgent(Agent):
         self.log_path = os.getenv("EXPERIMENT_PATH") + "/agent-logs.json"
         self.compact_log_path = os.getenv("EXPERIMENT_PATH") + "/agent-logs-compact.json"
         self.game_index = game_index
+
+        self.decomposition_enabled = enable_decomposition
 
     def log_interaction(self, sysprompt, prompt, original_response, step):
         """
@@ -197,7 +204,10 @@ class LLMAgent(Agent):
             return 'SPEAK: ...'
 
     def respond(self, message):
-        all_info = self.player.all_info_prompt()
+        if self.player.identity == "Crewmate" and self.player.enable_decomposition:
+            all_info = self.player.all_info_prompt(use_decomposition=True)
+        else:
+            all_info = self.player.all_info_prompt(use_decomposition=False)
         prompt = f"{all_info}\n{message}"
         messages = [
             {"role": "system", "content": self.system_prompt},
@@ -207,7 +217,22 @@ class LLMAgent(Agent):
 
     async def choose_action(self, timestep):
         available_actions = self.player.get_available_actions()
-        all_info = self.player.all_info_prompt()
+
+        all_info_plain = self.player.all_info_prompt(use_decomposition=False)
+        
+        if self.player.identity == "Crewmate" and self.decomposition_enabled:
+            # # Get observation history with decomposed statements
+            all_info_for_model = self.player.all_info_prompt(use_decomposition=True)
+
+        else:
+            # # Get normal observation history
+            all_info_for_model = all_info_plain
+            equivocation_analysis = ""
+
+
+
+
+        # all_info = self.player.all_info_prompt()
         # phase = "Meeting phase" if len(available_actions) == 1 else "Task phase"
         phase = "Meeting phase" if len(available_actions) == 1 or all(a.name == "VOTE" for a in available_actions) else "Task phase"
 
@@ -215,7 +240,7 @@ class LLMAgent(Agent):
             {"role": "system", "content": self.system_prompt},
             {
                 "role": "user",
-                "content": f"Summarization: {self.summarization}\n\n{all_info}\n\nMemory: {self.processed_memory}\
+                "content": f"Summarization: {self.summarization}\n\n{all_info_for_model}\n\nMemory: {self.processed_memory}\
                     \n\nPhase: {phase}. Return your output.",
             },
         ]
@@ -223,7 +248,7 @@ class LLMAgent(Agent):
         # log everything needed to reproduce the interaction
         full_prompt = {
             "Summarization": self.summarization,
-            "All Info": all_info,
+            "All Info": all_info_plain,
             "Memory": self.processed_memory,
             "Phase": phase,
         }
@@ -260,7 +285,7 @@ class LLMAgent(Agent):
         else:
             # For sets, dicts, or other non-sequence types
             return random.choice(list(map))
-
+        
 
 class RandomAgent(Agent):
     def __init__(self, player):
@@ -412,7 +437,6 @@ class HumanAgent(Agent):
             }
             
             print(f"\n--- [Game {self.game_index}] Player: {self.player.name} ({self.player.identity if self.player.identity else 'Role Unknown'}) ---")
-            print(all_info)
             print("\nChoose an action:")
             for i, action in enumerate(self.current_available_actions):
                 print(f"{i+1}: {str(action)}")

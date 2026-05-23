@@ -22,7 +22,7 @@ PLAYER_COLORS = [
 
 
 class Player:
-    def __init__(self, name, identity, color, personality, location=None):
+    def __init__(self, name, identity, color, personality, location=None, enable_decomposition=False):
         # Basic player information
         self.name = f"{name}: {color}"
         self.color = color
@@ -44,6 +44,8 @@ class Player:
         self.is_alive = True
         self.tasks = []
         self.reported_death = False
+
+        self.enable_decomposition = enable_decomposition  # Only active for crewmates
 
     def __repr__(self) -> str:
         return f"{self.name} ({self.identity})"
@@ -129,13 +131,24 @@ class Player:
         text += "\n"
         return text
 
-    def observation_history_prompt(self, recent_num=4):
+    def observation_history_prompt(self, recent_num=4, use_decomposition=None):
+        from amongagents.envs.tools import EchologyAmongUsAdaptor
+        
+        decompose_statement = EchologyAmongUsAdaptor.decompose_statement
+
+        if use_decomposition is None:
+            use_decomposition = self.enable_decomposition and self.identity == "Crewmate"
+
         text = "Observation history:\n"
         if len(self.observation_history) == 0:
             text += "No observations have been made yet.\n"
         else:
             for i, message in enumerate(self.observation_history[-recent_num:]):
-                text += f"{i+1}. {message}\n"
+                if use_decomposition:
+                    decomposed = decompose_statement(message)
+                    text += f"{i+1}. {decomposed}\n"
+                else:
+                    text += f"{i+1}. {message}\n"
         text += "\n"
         return text
 
@@ -156,9 +169,9 @@ class Player:
         text += "\n"
         return text
 
-    def all_info_prompt(self):
+    def all_info_prompt(self, use_decomposition=False):
         text = self.location_info_prompt()
-        text += self.observation_history_prompt()
+        text += self.observation_history_prompt(use_decomposition=use_decomposition)
         text += self.action_history_prompt()
         text += self.tasks_prompt()
         text += self.available_actions_prompt()
@@ -166,13 +179,13 @@ class Player:
 
 
 class Crewmate(Player):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, identity="Crewmate")
+    def __init__(self, *args, enable_decomposition=False, **kwargs):
+        super().__init__(*args, **kwargs, identity="Crewmate", enable_decomposition=enable_decomposition)
         self.SPECIAL_ACTIONS = CREWMATE_ACTIONS
 
 
 class Impostor(Player):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, identity="Impostor")
+        super().__init__(*args, **kwargs, identity="Impostor", enable_decomposition=False)
         self.SPECIAL_ACTIONS = IMPOSTER_ACTIONS
         self.kill_cooldown = 0
