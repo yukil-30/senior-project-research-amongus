@@ -126,7 +126,7 @@ async def main(agent_df, results_file, model, run_async=True, rate_limit=1):
             await process_row(row, results_file, model)
 
 parser = argparse.ArgumentParser(description="Run an AmongUs evaluation.")
-parser.add_argument("--expt_name", type=str, default="qwen_baseline", help="Experiment name.")
+parser.add_argument("--expt_name", type=str, default="qwen_decomposed", help="Experiment name.")
 parser.add_argument("--evaluator", type=str, default="llama3.1:8b", help="Evaluator LLM to use.")
 args = parser.parse_args()
 expt_name = args.expt_name
