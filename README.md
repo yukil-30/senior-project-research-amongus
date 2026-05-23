@@ -48,6 +48,7 @@ ollama pull llama3.1:8b
 Create a .env file in the root directory of the project to redirect the code's API calls to your local Ollama instance:
    ```bash
    OPENROUTER_API_BASE="http://localhost:11434/v1"
+   OPENROUTER_API_KEY="ollama"
    ```
 
 ## Run Games
@@ -72,23 +73,21 @@ Use `configs.py` to specify the model and layer to cache, and other configuratio
 
 ## LLM-based Evaluation (for Lying, Awareness, Deception, and Planning)
 
-To evaluate the game actions by passing agent outputs to an LLM, run:
+Once the game logs are generated, we use our secondary local model (llama3.1:8b) to act as an evaluator. The evaluator reads the game steps and scores them on a 1-to-10 scale for awareness, lying, deception, and planning.
+
+To run the evaluations and generate ground-truth labels, run:
 
 ```
 bash evaluations/run_evals.sh
 ```
-You will need to add a `.env` file with an OpenAI API key.
 
-Alternatively, you can download the ground truth labels from the [HuggingFace](https://huggingface.co/datasets/7vik/AmongUs).
-
-(TODO)
 
 ## Training Linear Probes
 
 Once the activations are cached, training linear probes is easy. Just run:
 
 ```
-python linear-probes/train_all_probes.py
+python linear-probes/train_probes.py
 ```
 You can choose which datasets to train probes on - by default, it will train on all datasets.
 
@@ -97,20 +96,11 @@ You can choose which datasets to train probes on - by default, it will train on 
 To evaluate the linear probes, run:
 
 ```
-python linear-probes/eval_all_probes.py
+python linear-probes/evaluate_probes.py
 ```
 You can choose which datasets to evaluate probes on - by default, it will evaluate on all datasets.
 
 It will store the results in `linear-probes/results/`, which are used to generate the plots in the paper.
-
-## Sparse Autoencoders (SAEs)
-
-We use the [Goodfire API](https://goodfire.ai/) to evaluate SAE features on the game logs. To do this, run the notebook:
-
-```
-reports/2025_02_27_sparse_autoencoders.ipynb
-```
-You will need to add a `.env` file with a Goodfire API key.
 
 ## Project Structure
 
