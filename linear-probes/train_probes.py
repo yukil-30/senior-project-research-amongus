@@ -21,20 +21,18 @@ from probe_datasets import (
 from probes import LinearProbe
 
 datasets: List[str] = [
-    # "TruthfulQADataset",
-    # "DishonestQADataset",
-    "AmongUsDataset",
-    # "RepEngDataset",
+    "AmongUsDataset",=
 ]
 
 config = config_qwen25_15b
 model, tokenizer, device = None, None, 'cpu'
-amongus_expt_name: str = "qwen_baseline"
+amongus_expt_name: str = "qwen_decomposed"
 
 ################### TRAINING PROBES
 
 for dataset_name in datasets:
     print(f"Loading {dataset_name}...")
+    print(f"Training with {amongus_expt_name}...")
     dataset = eval(f"{dataset_name}")(
         config,
         model=model,
@@ -56,7 +54,7 @@ for dataset_name in datasets:
     print(f'Training probe on {len(train_loader)} batches and {len(train_loader.dataset)} samples.')
     probe.fit(train_loader, epochs=config["probe_training_epochs"])
 
-    checkpoint_path = f'checkpoints/{dataset_name}_probe_{config["short_name"]}.pkl'
+    checkpoint_path = f'checkpoints/{dataset_name}_probe_{config["short_name"]}_decomposed.pkl'
     with open(checkpoint_path, 'wb') as f:
         pickle.dump(probe, f)
         print(f"Probe saved to {checkpoint_path}")

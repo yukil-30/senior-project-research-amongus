@@ -232,10 +232,10 @@ def evaluate_probe(
 
             responses_dict[item_id] = is_correct
             
-            irt_data = [{
-                "subject_id": "baseline_probe",
-                "responses": responses_dict
-            }]
+        irt_data = [{
+            "subject_id": "decomposed_probe",
+            "responses": responses_dict
+        }]
 
         # Save to file
         irt_out_path = f"results/{dataset_name}_{config['short_name']}/{output_filename}"
@@ -243,9 +243,13 @@ def evaluate_probe(
             writer.write_all(irt_data)
         print(f"Exported {len(irt_data)} {target_behavior} items for IRT analysis to {irt_out_path}")
 
+    # # Run the export for both!
+    # export_irt('lying', 'baseline_irt_lying.jsonlines')
+    # export_irt('deception', 'baseline_irt_deception.jsonlines')
+
     # Run the export for both!
-    export_irt('lying', 'baseline_irt_lying.jsonlines')
-    export_irt('deception', 'baseline_irt_deception.jsonlines')
+    export_irt('lying', 'decomposed_irt_lying.jsonlines')
+    export_irt('deception', 'decomposed_irt_deception.jsonlines')
     
     # =====================================================================
     
@@ -267,7 +271,7 @@ if __name__ == "__main__":
         print(f"Evaluating probe trained on {probe_dataset_name}...")
         probe = LinearProbe(config["activation_size"])
 
-        with open(f'checkpoints/{probe_dataset_name}_probe_{config["short_name"]}.pkl', 'rb') as f:
+        with open(f'checkpoints/{probe_dataset_name}_probe_{config["short_name"]}_decomposed.pkl', 'rb') as f:
             probe.model = pickle.load(f).model
             print(f'Loaded probe trained on {probe_dataset_name}.')
         

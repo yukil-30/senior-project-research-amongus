@@ -59,7 +59,7 @@ config_qwen25_15b: Dict[str, Any] = {
     "test_split": 0.2,
     "batch_size": 32,
     "learning_rate": 0.001,
-    "expt_name": "qwen_baseline", # Change this to your actual log folder name
+    "expt_name": "qwen_decomposed", # Change this to your actual log folder name
     "probe_training_epochs": 4,
     "probe_training_batch_size": 32,
     "probe_training_learning_rate": 0.001,

@@ -324,7 +324,7 @@ class AmongUsDataset(ActivationDataset):
         sys.path.append(os.path.join(base_dir, ".."))
         from utils import load_agent_logs_df
         self.agent_logs_df = load_agent_logs_df(self.agent_logs_path)
-        self.activations_dir: str = f'data/{self.name}_{config["short_name"]}_acts_{config["layer"]}/'
+        self.activations_dir: str = f'data/{self.name}_{config["short_name"]}_acts_{config["layer"]}_decomposed/'
         # load number of chunks from existing directory
         self.num_total_chunks = 0
         self.format = eval(config["short_name"] + "_format")
